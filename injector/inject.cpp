@@ -25,5 +25,22 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Found process with PID of " << processId << std::endl;
 
+    std::cout << "Openning process..." << std::endl;
+    HANDLE proc = OpenProcess(
+        PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ,
+        FALSE, processId);
+    if (proc == nullptr) {
+        std::cerr << "Failed OpenProcess" << std::endl;
+        return 1;
+    }
+
+    std::cout << "Allocating memory..." << std::endl;
+    void *remote_addr = VirtualAllocEx(proc, nullptr, 1000, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    if (remote_addr == NULL) {
+        std::cerr << "Failed VirtualAllocEx" << std::endl;
+        return 1;
+    }
+
+
     return 0;
 }
