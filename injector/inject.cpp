@@ -44,6 +44,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-
+    std::cout << "Closing..." << std::endl;
     return 0;
 }
