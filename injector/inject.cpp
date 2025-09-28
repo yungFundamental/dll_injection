@@ -45,5 +45,6 @@ int main(int argc, char *argv[]) {
     }
 
     std::cout << "Closing..." << std::endl;
+    CloseHandle(proc);
     return 0;
 }
