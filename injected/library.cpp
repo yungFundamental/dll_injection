@@ -1,7 +1,16 @@
-#include "library.h"
+#include <windows.h>
+#include <fstream>
 
-#include <iostream>
+using namespace std;
 
-void hello() {
-    std::cout << "Hello, World!" << std::endl;
+
+void hijackMessages() {
+}
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
+    std::ofstream("test.txt") << "hello world";
+    if (ul_reason_for_call == DLL_PROCESS_ATTACH)
+        hijackMessages();
+
+    return TRUE;
 }
