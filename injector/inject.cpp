@@ -2,8 +2,8 @@
 #include <Windows.h>
 
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        std::cout << "Usage: " << argv[0] << " <window_class>" << std::endl;
+    if (argc != 3) {
+        std::cout << "Usage: " << argv[0] << " <window_class> <dll_path>" << std::endl;
         std::cout <<
                 "Note, this program will only find processes with standard window classes like Notepad, Button, etc" <<
                 std::endl;
@@ -43,6 +43,25 @@ int main(int argc, char *argv[]) {
         std::cerr << "Failed VirtualAllocEx" << std::endl;
         return 1;
     }
+
+    std::string dll_path = argv[2];
+    SIZE_T written = 0;
+
+    std::cout << "Writing dll path of " << dll_path.data() << " ..." << std::endl;
+    if (WriteProcessMemory(proc, remote_addr, dll_path.data(), dll_path.size() + 1, &written) == 0) {
+        std::cout << "Failed WriteProcessMemory" << std::endl;
+        return -1;
+    }
+
+    DWORD tid = 0;
+    std::cout << "Creating thread..." << std::endl;
+    const HANDLE th = CreateRemoteThread(proc, nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(LoadLibraryA),
+                                         remote_addr, 0, &tid);
+    if (th == nullptr) {
+        std::cout << "Failed CreateRemoteThread" << std::endl;
+        return -1;
+    }
+
 
     std::cout << "Closing..." << std::endl;
     CloseHandle(proc);
