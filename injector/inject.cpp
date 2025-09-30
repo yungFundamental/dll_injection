@@ -47,11 +47,12 @@ int main(int argc, char *argv[]) {
     std::string dll_path = argv[2];
     SIZE_T written = 0;
 
-    std::cout << "Writing dll path of " << dll_path.data() << " ..." << std::endl;
+    std::cout << "Writing dll path of " << dll_path.data() << " (" << dll_path.size() + 1 << " bytes)..." << std::endl;
     if (WriteProcessMemory(proc, remote_addr, dll_path.data(), dll_path.size() + 1, &written) == 0) {
         std::cout << "Failed WriteProcessMemory" << std::endl;
         return -1;
     }
+    std::cout << "Done writing " << written << " bytes" << std::endl;
 
     DWORD tid = 0;
     std::cout << "Creating thread..." << std::endl;
