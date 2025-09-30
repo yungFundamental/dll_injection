@@ -61,6 +61,11 @@ int main(int argc, char *argv[]) {
         std::cout << "Failed CreateRemoteThread" << std::endl;
         return -1;
     }
+    std::cout << "Waiting for thread..." << std::endl;
+    WaitForSingleObject(th, INFINITE);
+    DWORD code;
+    GetExitCodeThread(th, &code);
+    std::cout << "Thread finished with the status code of " << code << std::endl;
 
 
     std::cout << "Closing..." << std::endl;
