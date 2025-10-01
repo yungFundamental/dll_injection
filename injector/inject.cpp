@@ -4,6 +4,7 @@
 
 
 int main(int argc, char *argv[]) {
+    std::cout.setf(std::ios::unitbuf);  // Remove stdout buffering
     if (argc != 3) {
         std::cout << "Usage: " << argv[0] << " <window_class> <dll_path>" << std::endl;
         std::cout <<
@@ -71,9 +72,12 @@ int main(int argc, char *argv[]) {
     }
     std::cout << "Waiting for thread..." << std::endl;
     WaitForSingleObject(th, INFINITE);
-    DWORD code;
-    GetExitCodeThread(th, &code);
-    std::cout << "Thread finished with the status code of " << code << std::endl;
+    DWORD exit_code;
+    GetExitCodeThread(th, &exit_code);
+    if (exit_code == 0) {
+        std::cerr << "Failed running DLL..." << std::endl;
+        return 1;
+    }
 
 
     std::cout << "Closing..." << std::endl;
