@@ -1,5 +1,7 @@
 #include <iostream>
 #include <Windows.h>
+#include <filesystem>
+
 
 int main(int argc, char *argv[]) {
     if (argc != 3) {
@@ -8,6 +10,11 @@ int main(int argc, char *argv[]) {
                 "Note, this program will only find processes with standard window classes like Notepad, Button, etc" <<
                 std::endl;
         return 0;
+    }
+
+    if (!std::filesystem::exists(argv[2])) {
+        std::cerr << "File \"" << argv[2] << "\" does not exist" << std::endl;
+        return 1;
     }
 
     std::cout << "Starting inject process on \"" << argv[1] << "\" process..." << std::endl;
