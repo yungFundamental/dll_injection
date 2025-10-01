@@ -78,8 +78,7 @@ int main(int argc, char *argv[]) {
         std::cerr << "Failed running DLL..." << std::endl;
         return 1;
     }
-
-
+    std::cout << "DLL loaded, module base: 0x" << std::hex << exit_code << std::dec << "\n";
     std::cout << "Closing..." << std::endl;
     CloseHandle(proc);
     return 0;
