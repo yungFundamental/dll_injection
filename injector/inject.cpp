@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
     if (argc != 3) {
         std::cout << "Usage: " << argv[0] << " <window_class> <dll_path>" << std::endl;
         std::cout <<
-                "Note, this program will only find processes with standard window classes like Notepad, Button, etc" <<
+                "Note, this program will only find processes with standard window classes like Notepad, Button, etc." <<
                 std::endl;
         return 0;
     }
