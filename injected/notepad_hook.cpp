@@ -3,12 +3,12 @@
 LONG_PTR prevWindowProc = 0;
 
 HWND FindAncestorWindowByClass(HWND hParent, const char* className) {
-    HWND hChild = FindWindowExA(hParent, NULL, className, NULL);
+    HWND hChild = FindWindowExA(hParent, nullptr, className, nullptr);
     if (hChild != nullptr) {
         return hChild;
     }
 
-    hChild = FindWindowExA(hParent, NULL, NULL, NULL); // Start with the first child
+    hChild = FindWindowExA(hParent, nullptr, nullptr, nullptr); // Start with the first child
     while (hChild != nullptr) {
         HWND hGrandchild = FindAncestorWindowByClass(hChild, className);
         if (hGrandchild != nullptr) {
@@ -32,7 +32,7 @@ LRESULT CALLBACK myWindowProc(_In_ HWND hwnd, _In_ UINT uMsg, _In_ WPARAM wParam
 void replaceWindowProc() {
     char debug_msg[128];
     OutputDebugStringA("Hook: Entered custom replaceWindowProc\n");
-    HWND npHwnd = FindWindowEx(NULL, NULL, "Notepad", NULL);
+    HWND npHwnd = FindWindowEx(nullptr, nullptr, "Notepad", nullptr);
     HWND hEditWnd = FindAncestorWindowByClass(npHwnd, "RichEditD2DPT");
     wsprintfA(debug_msg, "Hook: EditWindow handle allocated to 0x%p\n", hEditWnd);
     OutputDebugStringA(debug_msg);

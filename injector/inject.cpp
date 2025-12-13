@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Allocating memory..." << std::endl;
     void *remote_addr = VirtualAllocEx(proc, nullptr, 1000, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-    if (remote_addr == NULL) {
+    if (remote_addr == nullptr) {
         std::cerr << "Failed VirtualAllocEx" << std::endl;
         return 1;
     }
