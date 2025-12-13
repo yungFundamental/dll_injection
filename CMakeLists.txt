@@ -6,6 +6,6 @@ set(CMAKE_CXX_STANDARD 20)
 include_directories(injected injector)
 
 add_library(injected SHARED
-        injected/library.cpp)
+        injected/notepad_hook.cpp)
 
 add_executable(injector injector/inject.cpp)
