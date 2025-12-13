@@ -2,19 +2,40 @@
 
 LONG_PTR prevWindowProc = 0;
 
-LRESULT CALLBACK myWindowProc(_In_ HWND hwnd, _In_ UINT uMsg, _In_ WPARAM wParam, _In_ LPARAM lParam) {
-    if (uMsg == WM_CHAR) {
-        hwnd = CreateWindowA("STATIC", "Hello", WS_VISIBLE | WS_OVERLAPPEDWINDOW, 100, 100, 500, 100, nullptr,
-                                  nullptr, nullptr, nullptr);
+HWND FindAncestorWindowByClass(HWND hParent, const char* className) {
+    HWND hChild = FindWindowExA(hParent, NULL, className, NULL);
+    if (hChild != nullptr) {
+        return hChild;
     }
 
-    return CallWindowProcA(reinterpret_cast<WNDPROC>(prevWindowProc), hwnd, uMsg, ' ', lParam);
+    hChild = FindWindowExA(hParent, NULL, NULL, NULL); // Start with the first child
+    while (hChild != nullptr) {
+        HWND hGrandchild = FindAncestorWindowByClass(hChild, className);
+        if (hGrandchild != nullptr) {
+            return hGrandchild;
+        }
+
+        hChild = GetWindow(hChild, GW_HWNDNEXT);
+    }
+
+    return nullptr;
+}
+
+LRESULT CALLBACK myWindowProc(_In_ HWND hwnd, _In_ UINT uMsg, _In_ WPARAM wParam, _In_ LPARAM lParam) {
+    if (uMsg == WM_CHAR) {
+        return CallWindowProcA(reinterpret_cast<WNDPROC>(prevWindowProc), hwnd, uMsg, ' ', lParam);
+    }
+
+    return CallWindowProcA(reinterpret_cast<WNDPROC>(prevWindowProc), hwnd, uMsg, wParam, lParam);
 }
 
 void replaceWindowProc() {
+    char debug_msg[128];
+    OutputDebugStringA("Hook: Entered custom replaceWindowProc\n");
     HWND npHwnd = FindWindowEx(NULL, NULL, "Notepad", NULL);
-    HWND hEditWnd = GetWindow(npHwnd, GW_CHILD);
-    CreateWindowA("STATIC", "Hello", WS_VISIBLE | WS_OVERLAPPEDWINDOW, 100, 100, 500, 100, NULL, NULL, NULL, NULL);
+    HWND hEditWnd = FindAncestorWindowByClass(npHwnd, "RichEditD2DPT");
+    wsprintfA(debug_msg, "Hook: EditWindow handle allocated to 0x%p\n", hEditWnd);
+    OutputDebugStringA(debug_msg);
 
     prevWindowProc = GetWindowLongPtrA(hEditWnd, GWLP_WNDPROC);
     SetWindowLongPtrA(hEditWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(myWindowProc));
@@ -22,8 +43,6 @@ void replaceWindowProc() {
 
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
-    CreateWindowA("STATIC", "Hello", WS_VISIBLE | WS_OVERLAPPEDWINDOW, 100, 100, 500, 100, NULL, NULL, NULL, NULL);
-
     if (ul_reason_for_call == DLL_PROCESS_ATTACH)
         replaceWindowProc();
     return TRUE;
