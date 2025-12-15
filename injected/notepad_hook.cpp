@@ -1,8 +1,9 @@
 #include <windows.h>
 
-LONG_PTR prevWindowProc = 0;
 
-HWND FindAncestorWindowByClass(HWND hParent, const char* className) {
+WNDPROC prevWindowProc = nullptr;
+
+HWND FindAncestorWindowByClass(HWND hParent, const char *className) {
     HWND hChild = FindWindowExA(hParent, nullptr, className, nullptr);
     if (hChild != nullptr) {
         return hChild;
@@ -22,11 +23,11 @@ HWND FindAncestorWindowByClass(HWND hParent, const char* className) {
 }
 
 LRESULT CALLBACK myWindowProc(_In_ HWND hwnd, _In_ UINT uMsg, _In_ WPARAM wParam, _In_ LPARAM lParam) {
-    if (uMsg == WM_CHAR) {
-        return CallWindowProcA(reinterpret_cast<WNDPROC>(prevWindowProc), hwnd, uMsg, ' ', lParam);
+    if (uMsg == WM_CHAR && wParam == 'c') {
+        return CallWindowProcA(prevWindowProc, hwnd, uMsg, ' ', lParam);
     }
 
-    return CallWindowProcA(reinterpret_cast<WNDPROC>(prevWindowProc), hwnd, uMsg, wParam, lParam);
+    return CallWindowProcA(prevWindowProc, hwnd, uMsg, wParam, lParam);
 }
 
 void replaceWindowProc() {
@@ -37,7 +38,7 @@ void replaceWindowProc() {
     wsprintfA(debug_msg, "Hook: EditWindow handle allocated to 0x%p\n", hEditWnd);
     OutputDebugStringA(debug_msg);
 
-    prevWindowProc = GetWindowLongPtrA(hEditWnd, GWLP_WNDPROC);
+    prevWindowProc = reinterpret_cast<WNDPROC>(GetWindowLongPtrA(hEditWnd, GWLP_WNDPROC));
     SetWindowLongPtrA(hEditWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(myWindowProc));
 }
 
