@@ -1,3 +1,5 @@
+#include <fstream>
+#include <iosfwd>
 #include <windows.h>
 
 
@@ -30,8 +32,9 @@ LRESULT CALLBACK myWindowProc(_In_ HWND hwnd, _In_ UINT uMsg, _In_ WPARAM wParam
     return CallWindowProcA(prevWindowProc, hwnd, uMsg, wParam, lParam);
 }
 
-void replaceWindowProc() {
+DWORD WINAPI replaceWindowProc(LPVOID lpParam) {
     char debug_msg[128];
+    std::fstream file;
     OutputDebugStringA("Hook: Entered custom replaceWindowProc\n");
     HWND npHwnd = FindWindowEx(nullptr, nullptr, "Notepad", nullptr);
     HWND hEditWnd = FindAncestorWindowByClass(npHwnd, "RichEditD2DPT");
@@ -40,11 +43,12 @@ void replaceWindowProc() {
 
     prevWindowProc = reinterpret_cast<WNDPROC>(GetWindowLongPtrA(hEditWnd, GWLP_WNDPROC));
     SetWindowLongPtrA(hEditWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(myWindowProc));
+    return 0;
 }
 
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
     if (ul_reason_for_call == DLL_PROCESS_ATTACH)
-        replaceWindowProc();
+        CreateThread(nullptr, 0, replaceWindowProc, nullptr, 0, nullptr);
     return TRUE;
 }
